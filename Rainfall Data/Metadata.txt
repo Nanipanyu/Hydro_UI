@@ -1,0 +1,15 @@
+Rainfall Data
+Barot
+32.034399(Latitude)	76.849973(Longitude)
+
+Dhangsidhar Mandi
+31.715228(Latitude)	76.937(Longitude)
+
+Kandhi
+31.826135(Latitude)	77.080933(Longitude)
+
+
+
+Discharge
+Kamand
+31.773817(Latitude)	76.98458(Longitude)
