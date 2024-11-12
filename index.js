@@ -50,10 +50,10 @@ MapTile.addTo(map);
   iconSize: [35, 40], // Adjust icon size as needed
 });
  var discharge=L.marker([31.773817, 76.98458], { icon: dischargeIcon }).addTo(map);
- barot.bindPopup("<b>Barot Station</b><br>" + barot.getLatLng());
- dangsidhar.bindPopup("<b>Dangsidhar Station</b><br>" + dangsidhar.getLatLng());
- Kandhi.bindPopup("<b>Kandhi Station</b><br>" + Kandhi.getLatLng());
- discharge.bindPopup("<b>Discharge point</b><br>" + discharge.getLatLng());
+//  barot.bindPopup("<b>Barot Station</b><br>" + barot.getLatLng());
+//  dangsidhar.bindPopup("<b>Dangsidhar Station</b><br>" + dangsidhar.getLatLng());
+//  Kandhi.bindPopup("<b>Kandhi Station</b><br>" + Kandhi.getLatLng());
+//  discharge.bindPopup("<b>Discharge point</b><br>" + discharge.getLatLng());
  var markers = L.layerGroup([barot, dangsidhar, Kandhi,discharge]);
 
 //loading tif file
@@ -353,10 +353,10 @@ function createChart(container, data) {
 
 // Adding popups to existing markers
 const markersData = [
-  { marker: barot, name: "Barot Station", csvUrl: "Rainfall Data/barot_luv.csv", stationName: "Barot" },
-  { marker: dangsidhar, name: "Dangsidhar Station", csvUrl: "Rainfall Data/Dhangsidhar_Mandi_luv.csv", stationName: "Dhangsidhar" },
-  { marker: Kandhi, name: "Kandhi Station", csvUrl: "Rainfall Data/Kandhi_luv.csv", stationName: "Kandhi" },
-  { marker: discharge, name: "Discharge Station", csvUrl: "Kamand_1_Discharge/Kamand_1_Discharge_luv.csv", stationName: "Discharge" }
+  { marker: barot, name: "Barot Station (lat:32.034399,lng:76.849973)", csvUrl: "Rainfall Data/barot_luv.csv", stationName: "Barot" },
+  { marker: dangsidhar, name: "Dangsidhar Station(lat:31.715228,lng:76.937)", csvUrl: "Rainfall Data/Dhangsidhar_Mandi_luv.csv", stationName: "Dhangsidhar" },
+  { marker: Kandhi, name: "Kandhi Station(lat:31.826135,lng:77.080933)", csvUrl: "Rainfall Data/Kandhi_luv.csv", stationName: "Kandhi" },
+  { marker: discharge, name: "Discharge Station(lat:31.773817,lng:76.98458)", csvUrl: "Kamand_1_Discharge/Kamand_1_Discharge_luv.csv", stationName: "Discharge" }
 ];
 
 // markersData.forEach(({ marker, name, csvUrl }) => {
