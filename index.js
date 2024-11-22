@@ -174,112 +174,6 @@ var baseMaps = {
   ];
   loadShapefile(map, layerControl, urls, layerNames, styleOptions);
 
-// // plotting chart and download data
-//   // Function to load CSV data and filter for relevant columns
-//   async function loadCSVData(url, stationName) {
-//     const response = await fetch(url);
-//     const csvText = await response.text();
-//     console.log("data",csvText)
-//     const lines = csvText.split("\n");
-
-//     // Get headers and find the indices for Date and GPR columns
-//     const headers = lines[0].split(",");
-//     const dateIndex = headers.indexOf("Date(IST)");
-//     const rainfallIndex = headers.indexOf("GPR(GPRS-Rainfall by Telemetry)-mm");
-//     const stationIndex = headers.indexOf("Station Name");
-
-//     // Parse CSV data into JSON, filtering by station name
-//     const data = lines.slice(1).map(line => {
-//       const columns = line.split(",");
-//       return {
-//         date: columns[dateIndex]?.trim(),
-//         rainfall: parseFloat(columns[rainfallIndex]?.trim()),
-//         station: columns[stationIndex]?.trim()
-//       };
-//     }).filter(d => d.station === stationName && d.date && !isNaN(d.rainfall)); // Filter valid rows
-    
-//     return data;
-    
-//   }
-// // Function to create a chart with limited size
-// function createChart(container, data) {
-//   const ctx = container.getContext('2d');
-//   return new Chart(ctx, {
-//       type: 'line',
-//       data: {
-//           labels: data.map(d => d.time),
-//           datasets: [{
-//               label: 'Precipitation (mm)',
-//               data: data.map(d => d.precipitation),
-//               borderColor: 'blue',
-//               fill: false,
-//           }]
-//       },
-//       options: {
-//           responsive: false,              // Disable responsive resizing
-//           maintainAspectRatio: true,      // Maintain the defined aspect ratio
-//           aspectRatio: 1.5,               // Custom aspect ratio to control height
-//           scales: {
-//               x: { title: { display: true, text: 'Time' } },
-//               y: { title: { display: true, text: 'Precipitation (mm)' } }
-//           }
-//       }
-//   });
-// }
-
-//  // Function to download data in different formats
-// function downloadData(data, format) {
-//   let blob;
-//   if (format === "csv") {
-//     const csvContent = "Date(IST),Rainfall(mm)\n" + data.map(d => `${d.date},${d.rainfall}`).join("\n");
-//     blob = new Blob([csvContent], { type: "text/csv" });
-//   } else if (format === "txt") {
-//     const txtContent = data.map(d => `${d.date}: ${d.rainfall} mm`).join("\n");
-//     blob = new Blob([txtContent], { type: "text/plain" });
-//   } else if (format === "pdf") {
-//     const pdfDoc = new jsPDF();
-//     pdfDoc.text("Precipitation Data", 10, 10);
-//     data.forEach((d, i) => pdfDoc.text(`${d.date}: ${d.rainfall} mm`, 10, 20 + i * 10));
-//     blob = pdfDoc.output("blob");
-//   }
-//   saveAs(blob, `precipitation_data.${format}`);
-// }
-
-// // Adding popups to existing markers
-// const markersData = [
-//   { marker: barot, name: "Barot Station", csvUrl: "Rainfall Data/luv.csv", stationName: "Barot_2" },
-//   { marker: dangsidhar, name: "Dangsidhar Station", csvUrl: "Rainfall Data/luv.csv", stationName: "Dangsidhar" },
-//   { marker: Kandhi, name: "Kandhi Station", csvUrl: "Rainfall Data/luv.csv", stationName: "Kandhi" }
-// ];
-
-// markersData.forEach(({ marker, name, csvUrl, stationName }) => {
-//   marker.on('click', async () => {
-//     const data = await loadCSVData(csvUrl, stationName);
-//     console.log(data,"data")
-//     // Create popup content with limited chart size
-//     const popupContent = document.createElement('div');
-//     popupContent.innerHTML = `<b>${name}</b><br><canvas width="300" height="200"></canvas><br>`;
-
-//     // Create buttons and add event listeners for each download format
-//     const formats = ["csv", "pdf", "txt"];
-//     formats.forEach(format => {
-//       const button = document.createElement('button');
-//       button.textContent = `Download ${format.toUpperCase()}`;
-//       button.addEventListener('click', () => downloadData(data, format));
-//       popupContent.appendChild(button);
-//     });
-
-//     marker.bindPopup(popupContent).openPopup();
-
-//     // Create the chart in the popup
-//     createChart(popupContent.querySelector('canvas'), data);
-//   });
-// });
-
-// });
-
-
-
 
 async function loadCSVData(url, stationName) {
   const response = await fetch(url);
@@ -326,15 +220,28 @@ function downloadData(data, format) {
   saveAs(blob, `precipitation_data.${format}`);
 }
 
-function createChart(container, data) {
+
+
+// Adding popups to existing markers
+const markersData = [
+  { marker: barot, name: "Barot Station (lat:32.034399,lng:76.849973)", csvUrl: "Rainfall Data/barot_luv.csv", stationName: "Barot" },
+  { marker: dangsidhar, name: "Dangsidhar Station(lat:31.715228,lng:76.937)", csvUrl: "Rainfall Data/Dhangsidhar_Mandi_luv.csv", stationName: "Dhangsidhar" },
+  { marker: Kandhi, name: "Kandhi Station(lat:31.826135,lng:77.080933)", csvUrl: "Rainfall Data/Kandhi_luv.csv", stationName: "Kandhi" },
+  { marker: discharge, name: "Discharge Station(lat:31.773817,lng:76.98458)", csvUrl: "Kamand_1_Discharge/Kamand_1_Discharge_luv.csv", stationName: "Discharge" }
+];
+
+
+function createChart(container, data, stationName) {
   const ctx = container.getContext('2d');
+  const isDischarge = stationName === "Discharge"; // Check if the station is the Discharge marker
+
   return new Chart(ctx, {
     type: 'line',
     data: {
-      labels: data.map(d => d.date.slice(1)), // X-axis with Date
+      labels: data.map(d => d.date), // X-axis with Date
       datasets: [{
-        label: 'Precipitation (mm)',
-        data: data.map(d => d.rainfall), // Y-axis with Precipitation
+        label: isDischarge ? 'Discharge' : 'Precipitation (mm)', // Custom label for Discharge
+        data: data.map(d => d.rainfall), // Y-axis with Precipitation or Discharge
         borderColor: 'blue',
         fill: false,
       }]
@@ -345,38 +252,19 @@ function createChart(container, data) {
       aspectRatio: 1.5,
       scales: {
         x: { title: { display: true, text: 'Time' } },
-        y: { title: { display: true, text: 'Precipitation (mm)' } }
+        y: {
+          title: { display: true, text: isDischarge ? 'Discharge' : 'Precipitation (mm)' } // Custom Y-axis title
+        }
       }
     }
   });
 }
 
-// Adding popups to existing markers
-const markersData = [
-  { marker: barot, name: "Barot Station (lat:32.034399,lng:76.849973)", csvUrl: "Rainfall Data/barot_luv.csv", stationName: "Barot" },
-  { marker: dangsidhar, name: "Dangsidhar Station(lat:31.715228,lng:76.937)", csvUrl: "Rainfall Data/Dhangsidhar_Mandi_luv.csv", stationName: "Dhangsidhar" },
-  { marker: Kandhi, name: "Kandhi Station(lat:31.826135,lng:77.080933)", csvUrl: "Rainfall Data/Kandhi_luv.csv", stationName: "Kandhi" },
-  { marker: discharge, name: "Discharge Station(lat:31.773817,lng:76.98458)", csvUrl: "Kamand_1_Discharge/Kamand_1_Discharge_luv.csv", stationName: "Discharge" }
-];
-
-// markersData.forEach(({ marker, name, csvUrl }) => {
-//   marker.on('click', async () => {
-//     const data = await loadCSVData(csvUrl, name);
-
-//     // Create popup content with limited chart size and download buttons
-//     const popupContent = document.createElement('div');
-//     popupContent.innerHTML = `<b>${name}</b><br><canvas width="300" height="200"></canvas>`;
-
-//     marker.bindPopup(popupContent).openPopup();
-//     createChart(popupContent.querySelector('canvas'), data);
-//   });
-// });
-
-
+// Updated code to pass the stationName to createChart
 markersData.forEach(({ marker, name, csvUrl, stationName }) => {
   marker.on('click', async () => {
     const data = await loadCSVData(csvUrl, stationName);
-    console.log(data,"data")
+    console.log(data, "data");
     // Create popup content with limited chart size
     const popupContent = document.createElement('div');
     popupContent.style.width = '300px';  // Set the div width
@@ -390,53 +278,50 @@ markersData.forEach(({ marker, name, csvUrl, stationName }) => {
     
     popupContent.innerHTML = `<b>${name}</b><br><canvas style="width: 100%; height: 100%;"></canvas><br>`;
     
-    
-    
+    // Create buttons and add event listeners for each download format
+    const formats = ["csv", "pdf", "txt"];
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.gap = '10px';  // Space between buttons
+    buttonContainer.style.marginTop = '10px';  // Spacing from the canvas
 
-// Create buttons and add event listeners for each download format
-const formats = ["csv", "pdf", "txt"];
-const buttonContainer = document.createElement('div');
-buttonContainer.style.display = 'flex';
-buttonContainer.style.gap = '10px';  // Space between buttons
-buttonContainer.style.marginTop = '10px';  // Spacing from the canvas
+    formats.forEach(format => {
+      const button = document.createElement('button');
+      button.textContent = `Download ${format.toUpperCase()}`;
 
-formats.forEach(format => {
-  const button = document.createElement('button');
-  button.textContent = `Download ${format.toUpperCase()}`;
+      // Style the button with a gray theme
+      button.style.padding = '8px 15px';
+      button.style.borderRadius = '5px';
+      button.style.border = 'none';
+      button.style.backgroundColor = '#b0b0b0';  // Light gray background
+      button.style.color = 'white';
+      button.style.cursor = 'pointer';
+      button.style.fontSize = '14px';
+      button.style.fontWeight = 'bold';
+      button.style.transition = 'background-color 0.3s';
 
-  // Style the button with a gray theme
-  button.style.padding = '8px 15px';
-  button.style.borderRadius = '5px';
-  button.style.border = 'none';
-  button.style.backgroundColor = '#b0b0b0';  // Light gray background
-  button.style.color = 'white';
-  button.style.cursor = 'pointer';
-  button.style.fontSize = '14px';
-  button.style.fontWeight = 'bold';
-  button.style.transition = 'background-color 0.3s';
+      // Hover effect to darker gray
+      button.addEventListener('mouseover', () => {
+        button.style.backgroundColor = '#888888';  // Darker gray on hover
+      });
+      button.addEventListener('mouseout', () => {
+        button.style.backgroundColor = '#b0b0b0';
+      });
 
-  // Hover effect to darker gray
-  button.addEventListener('mouseover', () => {
-    button.style.backgroundColor = '#888888';  // Darker gray on hover
-  });
-  button.addEventListener('mouseout', () => {
-    button.style.backgroundColor = '#b0b0b0';
-  });
+      // Add click event for download
+      button.addEventListener('click', () => downloadData(data, format));
 
-  // Add click event for download
-  button.addEventListener('click', () => downloadData(data, format));
+      buttonContainer.appendChild(button);
+    });
 
-  buttonContainer.appendChild(button);
-});
-
-// Add buttonContainer to popupContent
-popupContent.appendChild(buttonContainer);
+    // Add buttonContainer to popupContent
+    popupContent.appendChild(buttonContainer);
 
     marker.bindPopup(popupContent).openPopup();
-
-    // Create the chart in the popup
-    createChart(popupContent.querySelector('canvas'), data);
+    // Create the chart in the popup, passing stationName for customization
+    createChart(popupContent.querySelector('canvas'), data, stationName);
   });
 });
+
 });
 
